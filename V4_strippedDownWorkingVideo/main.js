@@ -8,12 +8,14 @@ var container, scene, camera, renderer, controls, alon;
 // var keyboard = new THREEx.KeyboardState();
 var gui;
 var radExpand = 400;
-var camStartZ = 2000;
-var camZMin = -2500;
-var camZMax = 2500;
+var camStartZ = 1990;
+var camZMin = -1900;
+var camZMax = 2000;
 var camSpeed = -1;
+var camMult = 0;
 var cubeCamera;
 var zRotValue = 0
+var moreLightFlicker = 0;
 var zRotOn = false;
 var r = 255;
 var g = 0;
@@ -21,9 +23,11 @@ var b = 0;
 var gmapped = 0;
 
 var bmapped = 0;
-var rmapped = 0;
+var rmapped = 1;
 var color;
 var frontLight;
+var directionalLightInside;
+var insidelight;
 
 //------- 3D MODEL CONTROL ----------
 
@@ -150,7 +154,7 @@ function init() {
     var onProgress = function(xhr) {
         if (xhr.lengthComputable) {
             var percentComplete = xhr.loaded / xhr.total * 100;
-            // console.log(Math.round(percentComplete, 2) + '% downloaded');
+          
         }
     };
 
@@ -171,9 +175,6 @@ function init() {
         // offset Y position of 3D model
         object.position.y = 0;
 
-        //object scale
-
-        //reset rotation to world
 
         object.rotateOnAxis(new THREE.Vector3(1, 1, 1), zRotValue);
         // object.rotateOnAxis(new THREE.Vector3(0, 0, 0), 0);
@@ -209,7 +210,7 @@ function init() {
 
         }
 
-        var gui = new dat.GUI();
+        // var gui = new dat.GUI();
 
 
 
@@ -241,7 +242,7 @@ object.rotateOnAxis(new THREE.Vector3(0,1,0), value);
         //Video Rotate Z 
         var zRotV = f2.add(sliders, 'rotateScreenZ', 0, 360).step(1);
         zRotV.onChange(function(value) {
-            console.log(value);
+            // console.log(value);
             value = map_range(value, 0, 360, 0, Math.PI * 2);
             movieScreen.rotation.z = value;
         });
@@ -249,7 +250,7 @@ object.rotateOnAxis(new THREE.Vector3(0,1,0), value);
         //SHIFT VIDEO TEXTURE X POSITION
         var xPosV = f2.add(sliders, 'shiftVideoX', -409, 59).step(1);
         xPosV.onChange(function(value) {
-            console.log(value);
+            // console.log(value);
             // videoXpos = value;
         });
 
@@ -318,7 +319,7 @@ object.rotateOnAxis(new THREE.Vector3(0,1,0), value);
         //Model Rotate Z 
         var zRotM = f2.add(sliders, 'zRotModel', 0, 360).step(1);
         zRotM.onChange(function(value) {
-            console.log(value);
+            // console.log(value);
             value = map_range(value, 0, 360, 0, Math.PI * 2);
             object.rotation.z = value;
         });
@@ -348,11 +349,19 @@ function animate() {
 
 // ---------- UPDATE-------------------
 function update() {
-    radExpand++
-    rmapped++
-    gmapped++
-    bmapped++
-    rmapped = rmapped + .1
+    // radExpand++
+    rmapped=rmapped+moreLightFlicker;
+    // gmapped++
+    // bmapped++
+    // rmapped = rmapped + .1
+
+  var h = rmapped * 0.1 % 1;
+  var s = 0.9;
+  var l = 0.5;
+  frontLight.color.setHSL ( h, s, l );
+  directionalLightInside.color.setHSL ( h, s, l )
+  // insidelight.color.setHSL ( h+.5, s, l )
+  // console.log(h)
 
     lightColA = "rgb(" + rmapped + "," + gmapped + "," + bmapped + ")";
     // console.log(lightColA)
@@ -388,20 +397,23 @@ function update() {
         zRotValue = .003
         object.rotateOnAxis(new THREE.Vector3(0, 0, 1), zRotValue);
 
-        console.log('ON' + zRotValue)
+        // console.log('ON' + zRotValue)
     } else {
         zRotValue = 0
         object.rotateOnAxis(new THREE.Vector3(0, 0, 1), zRotValue);
-        console.log('OFF' + zRotValue)
+        // console.log('OFF' + zRotValue)
     }
 
 
-
-    camera.position.z += camSpeed;
+if (camSpeed>0)
+    camera.position.z += camSpeed+camMult;
+else if (camSpeed<0)
+    camera.position.z += camSpeed-camMult;
     // console.log(camera.position.z)
     if (camera.position.z > camZMax || camera.position.z < camZMin) {
         switchCamera();
     }
+    console.log(camSpeed)
 
 
     if (keyboard.pressed("s")) // resume
@@ -409,10 +421,29 @@ function update() {
 
     if (keyboard.pressed("d")) // resume
         zRotOn = false;
-    // console.log(zRotOn)
 
-    // if (keyboard.pressed("s")) // resume
-    //     movieScreen.visible = false;
+    if (keyboard.pressed("e")) // resume
+        moreLightFlicker = .05;
+
+     if (keyboard.pressed("w")) // resume
+        moreLightFlicker = 0;
+
+      if (keyboard.pressed("q")) // resume
+        moreLightFlicker = 1;
+
+     if (keyboard.pressed("x")) // resume
+        if (camSpeed>0)
+        camMult--;
+    else if(camSpeed<0)
+        camMult++;
+     if (keyboard.pressed("z")) // resume
+               if (camSpeed>0)
+        camMult++;
+    else if(camSpeed<0)
+        camMult--;
+
+    
+    
     controls.update();
     // console.log(camera.position.z)
 
@@ -474,7 +505,7 @@ function AddLights() {
 
 
 
-    var directionalLightInside = new THREE.DirectionalLight(lightColA, 1);
+    directionalLightInside = new THREE.DirectionalLight(lightColA, 1);
     directionalLightInside.position.set(0, 0, -3000);
     directionalLightInside.castShadow = true;
     directionalLightInside.shadowDarkness = 1;
@@ -482,14 +513,14 @@ function AddLights() {
     scene.add(directionalLightInside);
 
 
-     var insidelight = new THREE.PointLight(0xffffff, 1,0,.5);
+    insidelight = new THREE.PointLight(0xffffff, 1,0,.5);
     insidelight.position.set(0, 0,-1200);
     insidelight.castShadow = true;
     insidelight.shadowDarkness = 1;
     insidelight.shadowMapSoft = true;
     scene.add(insidelight);
 
-    frontLight = new THREE.DirectionalLight(color, 1);
+    frontLight = new THREE.DirectionalLight(0xffffff, 1);
     frontLight.position.set(0, 0, 3000);
     frontLight.castShadow = true;
     frontLight.shadowDarkness = 1;
