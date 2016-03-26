@@ -28,6 +28,8 @@ var color;
 var frontLight;
 var directionalLightInside;
 var insidelight;
+var allCubes = []
+var cubesAnimate = false;
 
 //------- 3D MODEL CONTROL ----------
 
@@ -215,124 +217,73 @@ function init() {
 
 
         //Model Rotation sliders
-        var f1 = gui.addFolder('Speed controllers');
+//          var f1 = gui.addFolder('Speed controllers');
 
-        /*   var angleY = f1.add(sliders, 'rotationAngle',0,0.1);
-angleY.onChange(function(value){
-object.rotateOnAxis(new THREE.Vector3(0,1,0), value);
-}); */
-        var speed = f1.add(sliders, 'rotationSpeed', 0, 0.05);
-        speed.onChange(function(value) {
-            angle = value;
-        });
+//            var angleY = f1.add(sliders, 'rotationAngle',0,0.1);
+// angleY.onChange(function(value){
+// object.rotateOnAxis(new THREE.Vector3(0,1,0), value);
+// }); 
+//         var speed = f1.add(sliders, 'rotationSpeed', 0, 0.05);
+//         speed.onChange(function(value) {
+//             angle = value;
+//         });
 
-        //  f1.add(sliders, 'resetRotation');
+//           f1.add(sliders, 'resetRotation');
 
-        //Video sliders
+//         // //Video sliders
 
-        //VIDEO CONTROLLER FOLDER
-        var f2 = gui.addFolder('Show/Hide Enviroment');
-        //SHOW OR HIDE VIDEO SCREEN
-        var videoShow = f2.add(sliders, 'showVideo');
-        videoShow.onChange(function(value) {
-            movieScreen.visible = value;
-        });
-
-
-        //Video Rotate Z 
-        var zRotV = f2.add(sliders, 'rotateScreenZ', 0, 360).step(1);
-        zRotV.onChange(function(value) {
-            // console.log(value);
-            value = map_range(value, 0, 360, 0, Math.PI * 2);
-            movieScreen.rotation.z = value;
-        });
-
-        //SHIFT VIDEO TEXTURE X POSITION
-        var xPosV = f2.add(sliders, 'shiftVideoX', -409, 59).step(1);
-        xPosV.onChange(function(value) {
-            // console.log(value);
-            // videoXpos = value;
-        });
-
-        //SHIFT VIDEO TEXTURE X POSITION
-        var yPosV = f2.add(sliders, 'shiftVideoY', 0, 200).step(1);
-        yPosV.onChange(function(value) {
-            console.log(value);
-            // videoYpos = value;
-        });
-
-        //ZOOM VIDEO TEXTURE
-        var zoomV = f2.add(sliders, 'scaleVideo', 1, 1.5).step(0.01);
-        zoomV.onChange(function(value) {
-            console.log(value);
-            // videoZoom = value;
-        });
+//         //VIDEO CONTROLLER FOLDER
+//         var f2 = gui.addFolder('Show/Hide Enviroment');
+//         //SHOW OR HIDE VIDEO SCREEN
+//         var videoShow = f2.add(sliders, 'showVideo');
+//         videoShow.onChange(function(value) {
+//             movieScreen.visible = value;
+//         });
 
 
-        // MODEL CONTROLERS
-        // var f3 = gui.addFolder('Model controllers');
-
-
-        //Model Offset X Position
-        // var xPosM = f3.add(sliders, 'xPosModel', -50, 50).step(1);
-        // xPosM.onChange(function(value) {
-        //     console.log(value);
-        //     object.position.x = value;
-        // });
-
-        //Model Offset Y Position
-        // var yPosM = f3.add(sliders, 'yPosModel', -50, 50).step(1);
-        // yPosM.onChange(function(value) {
-        //     console.log(value);
-        //     object.position.y = value;
-        // });
-
-
-        //Model Offset z Position
-        var zPosM = f2.add(sliders, 'zPosModel', 0, 100).step(1);
-        zPosM.onChange(function(value) {
-            // console.log(value);
-            object.position.z = value;
-        });
-
-        //----------------------------
-
-        //Model Rotate X 
-        // var xRotM = f3.add(sliders, 'xRotModel', 0, 360).step(1);
-        // xRotM.onChange(function(value) {
-        //     console.log(value);
+        // //Video Rotate Z 
+        // var zRotV = f2.add(sliders, 'rotateScreenZ', 0, 360).step(1);
+        // zRotV.onChange(function(value) {
+        //     // console.log(value);
         //     value = map_range(value, 0, 360, 0, Math.PI * 2);
-        //     object.rotation.x = value;
-        //     // object.rotateOnAxis(new THREE.Vector3(1,0,0), value);
-
+        //     movieScreen.rotation.z = value;
         // });
 
-        //Model Rotate Y 
-        // var yRotM = f3.add(sliders, 'yRotModel', 0, 360).step(1);
-        // yRotM.onChange(function(value) {
+        // //SHIFT VIDEO TEXTURE X POSITION
+        // var xPosV = f2.add(sliders, 'shiftVideoX', -409, 59).step(1);
+        // xPosV.onChange(function(value) {
+        //     // console.log(value);
+        //     // videoXpos = value;
+        // });
+
+        // //SHIFT VIDEO TEXTURE X POSITION
+        // var yPosV = f2.add(sliders, 'shiftVideoY', 0, 200).step(1);
+        // yPosV.onChange(function(value) {
         //     console.log(value);
+        //     // videoYpos = value;
+        // });
+
+        // //ZOOM VIDEO TEXTURE
+        // var zoomV = f2.add(sliders, 'scaleVideo', 1, 1.5).step(0.01);
+        // zoomV.onChange(function(value) {
+        //     console.log(value);
+        //     // videoZoom = value;
+        // });
+        // //Model Offset z Position
+        // var zPosM = f2.add(sliders, 'zPosModel', 0, 100).step(1);
+        // zPosM.onChange(function(value) {
+        //     // console.log(value);
+        //     object.position.z = value;
+        // });
+        // //Model Rotate Z 
+        // var zRotM = f2.add(sliders, 'zRotModel', 0, 360).step(1);
+        // zRotM.onChange(function(value) {
+        //     // console.log(value);
         //     value = map_range(value, 0, 360, 0, Math.PI * 2);
-        //     object.rotation.y = value;
+        //     object.rotation.z = value;
         // });
 
-
-        //Model Rotate Z 
-        var zRotM = f2.add(sliders, 'zRotModel', 0, 360).step(1);
-        zRotM.onChange(function(value) {
-            // console.log(value);
-            value = map_range(value, 0, 360, 0, Math.PI * 2);
-            object.rotation.z = value;
-        });
-
-        //--------------------
-
-        //Model Scale
-        // var scaleM = f3.add(sliders, 'scaleModel', 0, 50).step(1);
-        // scaleM.onChange(function(value) {
-        //     console.log(value);
-        //     object.scale.set(value, value, value);
-        //     value;
-        // });
+       
 
     }, onProgress, onError);
 
@@ -364,8 +315,7 @@ function update() {
   // console.log(h)
 
     lightColA = "rgb(" + rmapped + "," + gmapped + "," + bmapped + ")";
-    // console.log(lightColA)
-    // color.addColors(1,1,1)
+
 
 
     var time = Date.now() * 0.0000001;
@@ -413,7 +363,7 @@ else if (camSpeed<0)
     if (camera.position.z > camZMax || camera.position.z < camZMin) {
         switchCamera();
     }
-    console.log(camSpeed)
+    // console.log(camSpeed)
 
 
     if (keyboard.pressed("s")) // resume
@@ -421,6 +371,10 @@ else if (camSpeed<0)
 
     if (keyboard.pressed("d")) // resume
         zRotOn = false;
+
+    //   if (keyboard.pressed("y")) // resume
+    //     camMult = 0
+    // camSpeed = 0
 
     if (keyboard.pressed("e")) // resume
         moreLightFlicker = .05;
@@ -441,6 +395,37 @@ else if (camSpeed<0)
         camMult++;
     else if(camSpeed<0)
         camMult--;
+
+    if (keyboard.pressed("o"))
+
+    cubesAnimate = true;
+cubesAnimateScale = 1
+
+    if (keyboard.pressed("p"))
+
+    cubesAnimate = true;
+cubesAnimateScale =2
+
+
+    if (keyboard.pressed("i"))
+
+    cubesAnimate = false;
+ 
+
+
+    if (cubesAnimate){
+        for (i in allCubes){
+        // console.log(animating)
+var timer = Date.now() * .009;
+// console.log(timer)
+    allCubes[i].scale.z = Math.sin(timer)*cubesAnimateScale
+    // console.log(allCubes[1].scale.y)
+       }
+}
+
+
+
+
 
     
     
@@ -616,9 +601,10 @@ function addCubeGrid() {
             mat = new THREE.MeshLambertMaterial({
                 color: 0xFF748C
             }); // random colors!
-            var mesh = new THREE.Mesh(geo, mat);
-            mesh.position.set(-11500 + (2100 * i), -5000 + (j * 1270), (70 + j * 40))
-            scene.add(mesh);
+            var meshCubes = new THREE.Mesh(geo, mat);
+            meshCubes.position.set(-11500 + (2100 * i), -5000 + (j * 1270), (70 + j * 40))
+            allCubes.push (meshCubes)
+            scene.add(meshCubes);
         }
     }
 }
